@@ -39,41 +39,39 @@ PARA CADA radar EN [radar_mendoza, radar_sanra] HACER
 				// 1. Recorte
 				Recortar bordes de la imagen
 				
-				// 2. Selección de tormenta
+				// 2. Selección de tormenta (umbral con tolerancia)
 				Para cada pixel:
-					SI color pertenece a rango DBZ ENTONCES
+					SI color pertenece a rango DBZ ampliado ENTONCES
 						conservar pixel
 					SINO
 						reemplazar por fondo
 				
-				// 3. Eliminación y reconstrucción de elementos finos (textos y líneas)
+				// 3. Detección de elementos finos (textos y líneas)
 				Para cada pixel (i,j):
-
 					SI pixel pertenece a estructura fina (grosor ~1px)
-					Y color NO pertenece al rango DBZ ENTONCES
-						
+					Y color NO pertenece al rango DBZ ampliado ENTONCES
 						marcar pixel como "a reconstruir"
-
 				FIN PARA
 
-				// Relleno de esos pixeles
+				// 3.1 Relleno de elementos finos
 				Para cada pixel (i,j) marcado HACER
 					
 					obtener vecinos (4 u 8 conectividad)
-					seleccionar vecinos válidos (que sean tormenta)
+					seleccionar vecinos válidos (que NO sean fondo)
 					
 					determinar color dominante entre vecinos
 					
 					reemplazar pixel (i,j) con color dominante
-
+				
 				FIN PARA
+
 				// 4. Reconstrucción de la marca de agua (DACC)
 				Para cada pixel (i,j) donde radar.matriz_MA(i,j) = 1 HACER
 					
-					SI pixel (i,j) pertenece a tormenta ENTONCES
+					SI pixel (i,j) NO es fondo ENTONCES
 						
 						obtener vecinos (4 u 8 conectividad)
-						seleccionar vecinos válidos (que sean tormenta)
+						seleccionar vecinos válidos (que NO sean fondo)
 						
 						determinar color dominante
 						
