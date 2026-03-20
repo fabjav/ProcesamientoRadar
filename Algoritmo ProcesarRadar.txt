@@ -67,6 +67,21 @@ PARA CADA radar EN [radar_mendoza, radar_sanra] HACER
 					reemplazar pixel (i,j) con color dominante
 
 				FIN PARA
+				// 4. Reconstrucción de la marca de agua (DACC)
+				Para cada pixel (i,j) donde radar.matriz_MA(i,j) = 1 HACER
+					
+					SI pixel (i,j) pertenece a tormenta ENTONCES
+						
+						obtener vecinos (4 u 8 conectividad)
+						seleccionar vecinos válidos (que sean tormenta)
+						
+						determinar color dominante
+						
+						reemplazar pixel (i,j) con color dominante
+					
+					FIN SI
+
+				FIN PARA
 				
 				// --- FIN PROCESAMIENTO ---
 				
