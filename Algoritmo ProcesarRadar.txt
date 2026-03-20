@@ -1,50 +1,82 @@
 Algoritmo ProcesarRadar
 
-// 1. Cargar Template de marca de agua
-LEER matriz_MA_dacc
+// 1. Cargar templates
+LEER matriz_MA_mendoza
+LEER matriz_MA_sanra
 
-// 2. Definir carpetas
-carpeta_entrada <- 'ruta/imagenes'
-carpeta_salida <- 'ruta/salida'
+// 2. Definir configuraciones
+radar_mendoza:
+	carpeta_entrada <- 'ruta/imagenes_mendoza'
+	carpeta_salida <- 'ruta/salida/mendoza'
+	matriz_MA <- matriz_MA_mendoza
 
-// 3. Verificar carpeta de salida
-SI carpeta_salida NO EXISTE ENTONCES
-	CREAR carpeta_salida
-FIN SI
+radar_sanra:
+	carpeta_entrada <- 'ruta/imagenes_sanra'
+	carpeta_salida <- 'ruta/salida/sanra'
+	matriz_MA <- matriz_MA_sanra
 
-// 4. Procesar imágenes
-PARA CADA archivo EN carpeta_entrada HACER
+// 3. Procesar cada radar
+PARA CADA radar EN [radar_mendoza, radar_sanra] HACER
 
-	SI archivo es .gif ENTONCES
+	// Verificar carpeta de salida
+	SI radar.carpeta_salida NO EXISTE ENTONCES
+		CREAR radar.carpeta_salida
+	FIN SI
+
+	// Procesar imágenes
+	PARA CADA archivo EN radar.carpeta_entrada HACER
 		
-		nombre_salida <- generar nombre archivo
-		
-		SI nombre_salida NO EXISTE EN carpeta_salida ENTONCES
+		SI archivo es .gif ENTONCES
 			
-			imagen <- LEER archivo
+			nombre_salida <- generar nombre
 			
-			// Procesamiento
-			
-			Recortar bordes
-			
-			Seleccionar tormenta según colores DBZ 
-			y eliminar fondo (mantener tormenta + MA sobre tormenta)
-			
-			Eliminar textos:
-				- grosor aproximado 1px
-				- color en rango negro/gris
-			
-			Reconstruir tormenta en zona MA:
-				- usar matriz_MA_dacc
-				- identificar píxeles de MA
-				- si están sobre tormenta:
-					reemplazar por color dominante de vecinos
-			
-			GUARDAR imagen en carpeta_salida
+			SI nombre_salida NO EXISTE EN radar.carpeta_salida ENTONCES
+				
+				imagen <- LEER archivo
+				
+				// --- PROCESAMIENTO ---
+				
+				// 1. Recorte
+				Recortar bordes de la imagen
+				
+				// 2. Selección de tormenta
+				Para cada pixel:
+					SI color pertenece a rango DBZ ENTONCES
+						conservar pixel
+					SINO
+						reemplazar por fondo
+				
+				// 3. Eliminación y reconstrucción de elementos finos (textos y líneas)
+				Para cada pixel (i,j):
+
+					SI pixel pertenece a estructura fina (grosor ~1px)
+					Y color NO pertenece al rango DBZ ENTONCES
+						
+						marcar pixel como "a reconstruir"
+
+				FIN PARA
+
+				// Relleno de esos pixeles
+				Para cada pixel (i,j) marcado HACER
+					
+					obtener vecinos (4 u 8 conectividad)
+					seleccionar vecinos válidos (que sean tormenta)
+					
+					determinar color dominante entre vecinos
+					
+					reemplazar pixel (i,j) con color dominante
+
+				FIN PARA
+				
+				// --- FIN PROCESAMIENTO ---
+				
+				GUARDAR imagen en radar.carpeta_salida
+				
+			FIN SI
 			
 		FIN SI
 		
-	FIN SI
+	FIN PARA
 
 FIN PARA
 
